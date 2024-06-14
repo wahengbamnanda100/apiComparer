@@ -1,0 +1,51 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "dist/app.js",
+	"scripts": {
+		"dev": "nodemon src/app.ts",
+		"start": "tsc && node dist/app.js",
+		"lint": "eslint . --ext .ts",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/cors": "^2.8.17",
+		"@types/express": "^4.17.1",
+		"@types/morgan": "^1.9.9",
+		"@types/node": "^20.10.0",
+		"@typescript-eslint/eslint-plugin": "^6.21.0",
+		"@typescript-eslint/parser": "^6.21.0",
+		"bonsole": "^1.0.3",
+		"eslint": "^8.56.0",
+		"nodemon": "^3.0.3",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@apidevtools/swagger-parser": "^10.1.0",
+		"@stoplight/json-ref-resolver": "^3.1.6",
+		"@types/dotenv": "^8.2.0",
+		"@types/multer": "^1.4.11",
+		"@types/yaml": "^1.9.7",
+		"body-parser": "^1.20.2",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.2",
+		"express": "^4.17.1",
+		"helmet": "^7.1.0",
+		"js-yaml": "^4.1.0",
+		"mongodb": "^6.5.0",
+		"morgan": "^1.10.0",
+		"multer": "^1.4.5-lts.1",
+		"oas-resolver": "^2.5.6",
+		"openai": "^4.28.0",
+		"openapi-diff": "^0.23.7",
+		"swagger-diff": "^0.6.0",
+		"swagger-parser": "^10.0.3",
+		"ts-node": "^10.9.2",
+		"yaml": "^2.4.1",
+		"zod": "^3.22.4"
+	}
+}

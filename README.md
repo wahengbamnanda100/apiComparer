@@ -1,2 +1,12 @@
-# apiComparer
-comparing OAS3 yaml using OpenAI to give detail comparision and possible mappings betweens them
+# Run the project locally
+
+### Setup the project
+```
+git clone <repo_uri>
+npm i
+```
+
+### Run the server
+```
+npm run dev
+```

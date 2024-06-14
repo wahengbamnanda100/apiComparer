@@ -1,0 +1,313 @@
+openapi: 3.0.3
+info:
+  title: Customer Position
+  description: This service domain maintains a consolidated financial position for
+    a customer, combining details from all products and services in use. The
+    position can cover available funds, credit, collateral, tax exposure and
+    other financial measures as necessary
+  contact:
+    name: BIAN
+    url: https://bian.org
+  version: 11.0.0
+servers:
+  - url: https://to_be_defined
+paths:
+  "/customer-position/{partyId}/accounts":
+    get:
+      tags:
+        - CR - CustomerPosition
+      summary: Retrieve details about a customer position
+      description: Retrieve details about a customer position
+      operationId: Retrieve
+      parameters:
+        - name: partyId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CustomerPositionStateResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      accounts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            productHoldingId:
+                              type: string
+                              description: >
+                                A unique and immutable identifier used to
+                                identify the account resource within the TPP
+                                domain. This identifier has no meaning to the
+                                account owner.
+                              format: object
+                              example: 123456791
+                            name:
+                              type: string
+                              description: >
+                                The nickname of the account, assigned by the
+                                account owner in order to provide an additional
+                                means of identification of the account.
+                              format: object
+                              example: Mr.Nico
+                            description:
+                              type: string
+                              description: Description of the account.n
+                              format: object
+                              example: Description of the account
+                            type:
+                              type: string
+                              description: |
+                                Account type enumeration.
+                              format: object
+                              example: Personal
+                            subtype:
+                              type: string
+                              description: >
+                                Specifies the sub type of account (product
+                                family group).
+                              format: object
+                              example: CurrentAccount
+                            identification:
+                              type: string
+                              description: >
+                                Full account number o identification assigned by
+                                an institution to identify an account. This
+                                identification is known by the account owner.
+                              format: object
+                              example: 80200110203349
+                            currency:
+                              type: string
+                              description: >
+                                A code allocated to a currency by a Maintenance
+                                Agency under an international identification
+                                scheme, as described in the latest edition of
+                                the international standard ISO 4217.
+                              format: object
+                              example: GBP
+                            externalAccountFlag:
+                              type: boolean
+                              description: |
+                                Indicates if it is an external account or not
+                              format: object
+                              example: true
+                            balances:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  creditDebitIndicator:
+                                    type: string
+                                    description: "Indicates whether the balance is a credit or a debit balance.
+                                      Usage: A zero balance is considered to be
+                                      a credit balance."
+                                    format: object
+                                    example: Debit
+                                  type:
+                                    type: string
+                                    description: Balance type, in a coded form.
+                                    format: object
+                                    example: OpeningCleared
+                                  dateTime:
+                                    type: string
+                                    description: Indicates the date (and time) of the balance.
+                                    format: object
+                                    example: 2021-05-12T05:37:22.000Z
+                                  amount:
+                                    type: string
+                                    description: >
+                                      A number of monetary units specified in an
+                                      active currency where the unit of currency
+                                      is explicit and compliant with ISO 4217.
+                                    format: object
+                                    example: 10345.096
+                                  currency:
+                                    type: string
+                                    description: A code allocated to a currency by a Maintenance Agency under an
+                                      international identification scheme, as
+                                      described in the latest edition of the
+                                      international standard ISO 4217 'Codes for
+                                      the representation of currencies and
+                                      funds'.
+                                    format: object
+                                    example: GBP
+                            servicer:
+                              type: object
+                              properties:
+                                schemaName:
+                                  type: string
+                                  description: >
+                                    Name of the identification scheme, in a
+                                    coded form as published in an external list.
+                                  format: object
+                                  example: UK.OBIE.BICFI
+                                identification:
+                                  type: string
+                                  description: >
+                                    Unique and unambiguous identification of the
+                                    servicing institution.
+                                  format: object
+                                  example: DAC.SERVICER.ID.654456
+                              description: "\n"
+                            party:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  description: >
+                                    A unique and immutable identifier used to
+                                    identify the customer resource. This
+                                    identifier has no meaning to the account
+                                    owner.
+                                  format: object
+                                  example: 55786146
+                                type:
+                                  type: string
+                                  description: |
+                                    Party type enumeration.
+                                  format: string
+                                  example: Sole
+                                name:
+                                  type: string
+                                  description: >
+                                    Name by which a party is known and which is
+                                    usually used to identify that party.
+                                  format: string
+                                  example: Semiotec
+                                fullLegalName:
+                                  type: string
+                                  description: |
+                                    The full legal name of the party.
+                                  format: string
+                                  example: Semiotec Limited
+                description: "Output: Retrieve details about a customer position"
+        "400":
+          description: "HTTP Error: BadRequest"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: string
+                    format: string
+                    example: "400"
+                  status:
+                    type: string
+                    format: string
+                    example: Bad request
+                  message:
+                    type: string
+                    format: string
+                    example: Invalid argument (invalid request payload)
+                description: Status Attributes
+        "401":
+          description: "HTTP Error: Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: string
+                    format: string
+                    example: "401"
+                  status:
+                    type: string
+                    format: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    format: string
+                    example: No valid session found for the session token
+                description: Status Attributes
+        "403":
+          description: "HTTP Error: Forbidden"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: string
+                    format: string
+                    example: "403"
+                  status:
+                    type: string
+                    format: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    format: string
+                    example: Forbidden access
+                description: Status Attributes
+        "404":
+          description: "HTTP Error: NotFound"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: string
+                    format: string
+                    example: "404"
+                  status:
+                    type: string
+                    format: string
+                    example: Not found
+                  message:
+                    type: string
+                    format: string
+                    example: Account 1234 does not exist
+                description: Status Attributes
+        "429":
+          description: "HTTP Error: TooManyRequests"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: string
+                    format: string
+                    example: "429"
+                  status:
+                    type: string
+                    format: string
+                    example: TooManyRequests
+                  message:
+                    type: string
+                    format: string
+                    example: Your request limit has been reached
+                description: Status Attributes
+        "500":
+          description: "HTTP Error: InternalServerError"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: string
+                    format: string
+                    example: "500"
+                  status:
+                    type: string
+                    format: string
+                    example: InternalServerError
+                  message:
+                    type: string
+                    format: string
+                    example: The server encountered and internal error or misconfiguration and was
+                      enable to complete the request
+                description: Status Attributes

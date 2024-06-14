@@ -1,0 +1,1025 @@
+openapi: 3.0.1
+info:
+  title: Position Keeping
+  description: This API maintains a financial transaction log to support
+    production. Reconciled financial transactions are subsequently posted to the
+    accounting systems..
+  termsOfService: http://no-terms.co.za
+  contact:
+    name: Domain Service Team
+    url: https://aws-tools.standardbank.co.za/confluence/display/DOS/Position+Keeping
+    email: domainserviceteam@standardbank.onmicrosoft.com
+  version: 1.0.0
+  x-ibm-name: position-keeping-api
+servers:
+  - url: /position-keeping
+security:
+  - X-IBM-Client-Secret: []
+    X-IBM-Client-Id: []
+tags:
+  - name: position-keeping-controller
+paths:
+  "/{account-identification-type}/{account-identifier-value}/{source-system-value}":
+    get:
+      tags:
+        - position-keeping-rest-controller
+      summary: Retrieve details of financial transactions captured in the log across a
+        range of products taken up by the customer.
+      operationId: getFinancialPositionLogInstanceRecord
+      parameters:
+        - name: account-identification-type
+          in: path
+          required: true
+          schema:
+            type: string
+            x-extensible-enum:
+              - Account Number
+          x-extensible-enum:
+            - Account Number
+        - name: account-identifier-value
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: source-system-value
+          in: path
+          required: true
+          schema:
+            type: string
+            x-extensible-enum:
+              - BIZ_FLEX
+              - HOME_LOAN
+              - VAF
+              - VAF_ALPHA
+          x-extensible-enum:
+            - BIZ_FLEX
+            - HOME_LOAN
+            - VAF
+            - VAF_ALPHA
+        - name: x-fapi-interaction-id
+          in: header
+          description: Api intercation id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiationDateTime:
+                    type: string
+                    description: InitiationDateTime
+                  productAgreementReference:
+                    type: object
+                    properties:
+                      accountIdentificationTypeValue:
+                        type: string
+                        description: accountIdentificationTypeValue
+                      sourceSystemId:
+                        type: string
+                        description: sourceSystemId
+                      accountIdentificationType:
+                        type: string
+                        description: accountIdentificationType
+                    description: The product/service agreement for which this is a financial
+                      transaction log.
+                  customerReference:
+                    type: object
+                    properties:
+                      partyIdentificationType:
+                        type: string
+                        description: partyIdentificationType
+                      partyIdentificationTypeValue:
+                        type: string
+                        description: partyIdentificationTypeValue
+                    description: Reference to the product or service account holder/customer for the
+                      log if appropriate.
+                  moreTransactionsIndicator:
+                    type: boolean
+                  transactionLogType:
+                    type: string
+                    description: The type of financial transaction.
+                    x-extensible-enum:
+                      - POSTED_TRANSACTIONS
+                  transactionCaptureInstanceRecordList:
+                    type: array
+                    description: TransactionCaptureInstanceRecordList
+                    items:
+                      type: object
+                      properties:
+                        postingTransactionAmount:
+                          type: number
+                          description: postingTransactionAmount
+                          format: double
+                        postingValueDateTime:
+                          type: string
+                          description: postingValueDateTime
+                        postingTransactionDescription:
+                          type: string
+                          description: postingTransactionDescription
+                        postingTransactionIdentifier:
+                          type: string
+                          description: postingTransactionIdentifier
+                        serviceFees:
+                          type: number
+                          description: serviceFees
+                          format: double
+                        postingTransactionDebitCreditDirection:
+                          type: string
+                          description: The logged financial transaction. Note the log can be structured
+                            with double entry representations (i.e. capture
+                            credit/debit pair).
+                          x-extensible-enum:
+                            - DEBIT
+                            - CREDIT
+                        postingTransactionType:
+                          type: string
+                          description: The type of the logged financial transact.
+                          x-extensible-enum:
+                            - ZAR
+                            - FIXED_MONTHLY_FEE
+                            - IB_PAYMENT_TO
+                            - FEE_PAYMENT_CONFIRM_EMAIL
+                      description: List of captured financial transactions in the log.
+                  baseCurrency:
+                    type: string
+                    description: BaseCurrency
+                  errors:
+                    type: array
+                    items: &a2
+                      type: object
+                      properties:
+                        traceId:
+                          type: string
+                          description: Operation trace id
+                        code:
+                          type: string
+                          description: A short, human-readable summary of the problem type.
+                        type:
+                          type: string
+                          description: A URI reference that identifies the problem type
+                        message:
+                          type: string
+                          description: A human-readable explanation specific to this occurrence of the
+                            problem.
+                      description: Error response.
+                  totalElements:
+                    type: integer
+                    description: total number of transactions
+                    format: int32
+                description: Maintain a log of financial transactions for management
+                  information, tracking and reconciliation purposes.
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: &a1
+                type: object
+                properties:
+                  traceId:
+                    type: string
+                    description: Operation trace id
+                  detail:
+                    type: string
+                    description: A human-readable explanation specific to this occurrence of the
+                      problem.
+                  type:
+                    type: string
+                    description: A URI reference that identifies the problem type
+                  title:
+                    type: string
+                    description: A short, human-readable summary of the problem type.
+                description: Rfc7807 problem detail
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: *a1
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema: *a1
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: *a2
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema: *a1
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: *a1
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema: *a1
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema: *a1
+      deprecated: false
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+  properties:
+    openshifttargeturl:
+      value: https://ams-domain-sit.apps.tc001745-dev.afs1-nprd.aws-za.sbgrp.cloud
+      description: ""
+      encoded: false
+  catalogs:
+    sit:
+      properties:
+        openshifttargeturl: https://ams-domain-sit.apps.tc001745-dev.afs1-nprd.aws-za.sbgrp.cloud
+    dev:
+      properties:
+        openshifttargeturl: https://ams-domain-dev.apps.awsdev.okd4.afs1-nprd.aws-za.sbgrp.cloud
+    extnonprod:
+      properties:
+        openshifttargeturl: https://ams-domain-sit.apps.tc001745-dev.afs1-nprd.aws-za.sbgrp.cloud
+    prod:
+      properties:
+        openshifttargeturl: https://ams-domain-prod.apps.tc01745-app.afs1-prd.aws-za.sbgrp.cloud
+    ext-prod:
+      properties:
+        openshifttargeturl: https://ams-domain-prod.apps.tc01745-app.afs1-prd.aws-za.sbgrp.cloud
+  assembly:
+    catch: []
+    execute:
+      - gatewayscript:
+          source: >-
+            //check x-fapi-interaction-id is populated and a guid
+
+            var apim = require('apim');
+
+            const fapiG = apim.getvariable('request.headers.x-fapi-interaction-id');
+
+            const authNode = apim.getvariable('request.headers.authorization');
+
+            if (fapiG === null || typeof fapiG === 'undefined') {
+                apim.error('fapiError', 400, '400 Bad Request', 'Invalid x-fapi-interaction-id');
+            } else {
+                const nGUID = fapiG.search(/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/g);
+                if (nGUID == -1) {
+                    apim.error('fapiError', 400, '400 Bad Request', 'Invalid x-fapi-interaction-id');
+                }
+            }
+
+            if (authNode === null || typeof authNode === 'undefined') {
+                apim.error('tokenError', 400, '400 Bad Request', 'No authorization header ');
+            }
+          title: checkHeaders
+          version: 2.0.0
+          comment:
+            - "GWS04: Found `gatewayscript` policy. Porting might be required.
+              For details, see:
+              https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-mess\
+              ages-generated-during-conversion-apis-datapower-api-gateway#GWS_F\
+              OUND"
+            - "API33: Found usage of inline parameters: [ '{8}', '{4}', '{4}',
+              '{4}', '{12}' ] in gatewayscript policy. For details, see:
+              https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-mess\
+              ages-generated-during-conversion-apis-datapower-api-gateway#INLIN\
+              E_PARAMS_FOUND"
+            - "GWS05: Added `require('apim')` function to `gatewayscript` policy
+              to conform to the API Gateway specification. For details, see:
+              https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-mess\
+              ages-generated-during-conversion-apis-datapower-api-gateway#GWS_P\
+              REPEND_REQUIRE_APIM"
+      - invoke:
+          cache-response: no-cache
+          cache-ttl: 900
+          target-url: $(openshifttargeturl)$(request.path)$(request.search)
+          timeout: 300
+          title: invoke
+          verb: keep
+          version: 2.0.0
+          comment:
+            - "INV06: Found `invoke` policy. Converted to API Gateway `invoke`
+              policy."
+            - "[Perf]: API41: Set `chunked-uploads` value to `false` to emulate
+              v5 behavior. For details, see:
+              https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-mess\
+              ages-generated-during-conversion-apis-datapower-api-gateway#SET_C\
+              HUNKED_UPLOADS_FALSE"
+            - "INV10: `X-IBM-Client-Id` HTTP header suppressed using
+              header-control blocklist, as the
+              `x-ibm-gateway-invoke-suppress-clientid` property is undefined or
+              not set in the v5c YAML input file. For details, see:
+              https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-mess\
+              ages-generated-during-conversion-apis-datapower-api-gateway#INVOK\
+              E_CLIENTID_HTTPHEADER_PROP_UNDEF"
+            - "INV16: Set `keep-payload` setting to `true`. For details, see:
+              https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-mess\
+              ages-generated-during-conversion-apis-datapower-api-gateway#SET_K\
+              EEP_PAYLOAD_TRUE"
+          header-control:
+            type: blocklist
+            values:
+              - ^X-IBM-Client-Id$
+          follow-redirects: false
+          parameter-control:
+            type: allowlist
+          keep-payload: false
+          persistent-connection: true
+  gateway: datapower-api-gateway
+  type: rest
+  compatibility:
+    enforce-required-params: false
+    comment:
+      - "API44: Set compatibility toggle `enforce-required-params` to value:
+        `false`. For details, see:
+        https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-g\
+        enerated-during-conversion-apis-datapower-api-gateway#SET_COMPATIBILITY\
+        _TOGGLE"
+      - "API44: Set compatibility toggle `request-headers` to value: `true`. For
+        details, see:
+        https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-g\
+        enerated-during-conversion-apis-datapower-api-gateway#SET_COMPATIBILITY\
+        _TOGGLE"
+      - "API43: Created `compatibility:` section for API-wide toggles set by
+        migration utility. For details, see:
+        https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-g\
+        enerated-during-conversion-apis-datapower-api-gateway#COMPATIBILITY_INF\
+        O"
+    request-headers: true
+  activity-log:
+    error-content: payload
+    comment:
+      - "ACT01: Converted `activity-log` policy to API Gateway `activity-log`
+        policy for conformance. For details, see:
+        https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-g\
+        enerated-during-conversion-apis-datapower-api-gateway#ACTLOG_FOUND"
+      - "ACT02: Removed `title` property from `activity-log` policy to conform
+        to the API Gateway specification. For details, see:
+        https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-g\
+        enerated-during-conversion-apis-datapower-api-gateway#ACTLOG_REMOVED_TI\
+        TLE"
+      - "ACT03: Removed `version` property from `activity-log` policy to conform
+        to the API Gateway specification. For details, see:
+        https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-g\
+        enerated-during-conversion-apis-datapower-api-gateway#ACTLOG_REMOVED_VE\
+        RSION"
+    enabled: true
+    success-content: header
+  application-authentication:
+    certificate: false
+  cors:
+    enabled: true
+x-ibm-comment:
+  - "AMU version used to port this API:
+    v10.0.1.2-R3-2666362a8b512ef37588967a3e6a5cea76f547fc-2021-06-22T20:04:21Z"
+  - "API03: Suffix -apigw appended to API `title` and `x-ibm-name`. For details,
+    see:
+    https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-gener\
+    ated-during-conversion-apis-datapower-api-gateway#API_NAME_ADDED_SUFFIX"
+  - "API06: Changed gateway type to `datapower-api-gateway`."
+  - "API14: Ported v5-compatible policies to work with the API Gateway and
+    updated policy versions."
+  - "API45: Compatibility toggle: `allow-chunked-uploads` set to value: `false`,
+    which is the same as the API Gateway default. For details, see:
+    https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-gener\
+    ated-during-conversion-apis-datapower-api-gateway#COMPAT_TOGGLE_MATCHES_API\
+    GW_DEFAULT"
+  - "API45: Compatibility toggle: `copy-id-headers-to-message` set to value:
+    `false`, which is the same as the API Gateway default. For details, see:
+    https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-gener\
+    ated-during-conversion-apis-datapower-api-gateway#COMPAT_TOGGLE_MATCHES_API\
+    GW_DEFAULT"
+  - "API45: Compatibility toggle: `return-v5-responses` set to value: `false`,
+    which is the same as the API Gateway default. For details, see:
+    https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-gener\
+    ated-during-conversion-apis-datapower-api-gateway#COMPAT_TOGGLE_MATCHES_API\
+    GW_DEFAULT"
+  - "API24: Removed redundant `parse` policy from the beginning of the assembly.
+    For details, see:
+    https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-gener\
+    ated-during-conversion-apis-datapower-api-gateway#REMOVED_REDUNDANT_FRONT_P\
+    ARSE"
+  - "API48: example: null found in API definitions properties section, deleting.
+    For details, see:
+    https://www.ibm.com/docs/en/api-connect/10.0.1.x?topic=cadag-messages-gener\
+    ated-during-conversion-apis-datapower-api-gateway#REMOVED_NULL_VALUE"
+x-original-swagger-version: "2.0"
+on which refers to the LifecycleStatus of transaction (e.g., initiated, executed, confirmed, cancelled, etc.) '
+    transaction:
+      type: object
+      properties:
+        TransactionIdentification:
+          $ref: '#/components/schemas/identifier'
+        TransactionDate:
+          $ref: '#/components/schemas/transactiondate'
+        TransactionType:
+          $ref: '#/components/schemas/transactiontypevalues'
+        TransactionDescription:
+          $ref: '#/components/schemas/text'
+        TransactionStatus:
+          $ref: '#/components/schemas/transactionlifecyclestatus'
+        TransactionName:
+          $ref: '#/components/schemas/name'
+      description: The logged financial transaction. Note the log can be structured with double entry representations (i.e. capture credit/debit pair)
+    date:
+      type: object
+      properties:
+        DateContent:
+          type: string
+          description: ''
+          format: string
+      description: The date and time the log was initiated. Note the log will have a complex internal calendar structure for extract and reporting ISODate|ISODate (https://www.iso20022.org/standardsrepository/type/ISODate)|Standard|ISO20022 BM ()
+    FinancialTransactionCapture:
+      type: object
+      properties:
+        PostingDescription:
+          $ref: '#/components/schemas/text'
+        PostingTransaction:
+          $ref: '#/components/schemas/transaction'
+        PostingValueDate:
+          $ref: '#/components/schemas/date'
+      description: "A collection of the events/transactions recorded by the log\n\nExamples: Customer life event, Servicing event"
+    productagreementtypevalues:
+      enum:
+        - CurrentAccountAgreement
+        - SavingsAccountAgreement
+        - BrokeredProductAgreement
+        - ConsumerLoanAgreement
+        - MortgageLoanAgreement
+        - DirectDebitServiceAgreement
+      type: string
+      description: ">\r\n* `CurrentAccountAgreement` - \r\n* `SavingsAccountAgreement` - \r\n* `BrokeredProductAgreement` - \r\n* `ConsumerLoanAgreement` - \r\n* `MortgageLoanAgreement` - \r\n* `DirectDebitServiceAgreement` - \r\n"
+    productidentificationtypevalues:
+      enum:
+        - ISINCode
+        - PackageCode
+        - Buyersitemnumber
+        - Commercialdescriptioncodename
+        - EAN
+        - Harmonizedtariffcodename
+        - Manufacturersitemnumber
+        - Modelnumber
+        - Partnumber
+        - Quotacategory
+        - Stylenumber
+        - Suppliersitemnumber
+        - Universalproductcode
+      type: string
+      description: ">\r\n* `ISINCode` - \r\n* `PackageCode` - \r\n* `Buyersitemnumber` - Product identifier assigned by the buyer.\r\n* `Commercialdescriptioncodename` - A code to identify a product based on applicable commercial conditions.\r\n* `EAN` - The unique EAN (European Article Number) code.\r\n* `Harmonizedtariffcodename` - Classification of goods as developed by the Customs Cooperation council.\r\n* `Manufacturersitemnumber` - Product identifier as assigned by the manufacturer.\r\n* `Modelnumber` - Reference number assigned by the manufacturer to differentiate variations in similar products in a class or group.\r\n* `Partnumber` - Reference assigned by the manufacturer to a product part.\r\n* `Quotacategory` - Product identifier used by the retail industry.\r\n* `Stylenumber` - Identification of the style of a product.\r\n* `Suppliersitemnumber` - Number assigned to an article by the supplier of that article.\r\n* `Universalproductcode` - Number assigned to a manufacturer's product by the Product Code Council.\r\n"
+    productidentification:
+      type: object
+      properties:
+        ProductIdentification:
+          $ref: '#/components/schemas/identifier'
+        ProductIdentificationType:
+          $ref: '#/components/schemas/productidentificationtypevalues'
+      description: The identifier of product e.g. ISIN Code.
+    bankingproducttypevalues:
+      enum:
+        - LoanProduct
+        - CurrentAccountProduct
+        - SavingAccountProduct
+        - BrokeredProduct
+        - TermDepositProduct
+      type: string
+      description: ">\r\n* `LoanProduct` - \r\n* `CurrentAccountProduct` - \r\n* `SavingAccountProduct` - \r\n* `BrokeredProduct` - \r\n* `TermDepositProduct` - \r\n"
+    productlifecyclestatustypevalues:
+      enum:
+        - Initiated
+        - Announced
+        - Sold
+        - Obsolete
+        - Active
+      type: string
+      description: ">\r\n* `Initiated` - \r\n* `Announced` - \r\n* `Sold` - \r\n* `Obsolete` - \r\n* `Active` - \r\n"
+    productlifecyclestatus:
+      type: object
+      properties:
+        ProductLifecycleStatus:
+          $ref: '#/components/schemas/status'
+        ProductLifecycleStatusType:
+          $ref: '#/components/schemas/productlifecyclestatustypevalues'
+      description: 'Refers to the lifecycle of a product (e.g., initiated, announced, active, obsolete, withdrawn).'
+    bankingproduct:
+      type: object
+      properties:
+        ProductIdentification:
+          $ref: '#/components/schemas/productidentification'
+        ProductType:
+          $ref: '#/components/schemas/bankingproducttypevalues'
+        ProductLifecycleStatus:
+          $ref: '#/components/schemas/productlifecyclestatus'
+        ProductPriority:
+          $ref: '#/components/schemas/text'
+        ProductDescription:
+          $ref: '#/components/schemas/text'
+        ProductVersion:
+          $ref: '#/components/schemas/text'
+        ProductName:
+          $ref: '#/components/schemas/name'
+      description: ''
+    agreementtypevalues:
+      enum:
+        - CustomerAgreement
+        - SupplierAgreement
+        - BrokerAgreement
+        - SalesAgreement
+        - PurchaseAgreement
+        - MaintenanceAgreement
+        - ProductAgreement
+        - ProductSalesAgreement
+        - ResourceAgreement
+      type: string
+      description: ">\r\n* `CustomerAgreement` - \r\n* `SupplierAgreement` - \r\n* `BrokerAgreement` - \r\n* `SalesAgreement` - \r\n* `PurchaseAgreement` - \r\n* `MaintenanceAgreement` - \r\n* `ProductAgreement` - \r\n* `ProductSalesAgreement` - \r\n* `ResourceAgreement` - \r\n"
+    agreementlifecyclestatustypevalues:
+      enum:
+        - Offered
+        - Confirmed
+        - Completed
+        - Signed
+        - Terminated
+        - Rejected
+      type: string
+      description: ">\r\n* `Offered` - \r\n* `Confirmed` - \r\n* `Completed` - \r\n* `Signed` - \r\n* `Terminated` - \r\n* `Rejected` - \r\n"
+    agreementlifecyclestatus:
+      type: object
+      properties:
+        AgreementLifecycleStatus:
+          $ref: '#/components/schemas/status'
+        AgreementLifecycleStatusType:
+          $ref: '#/components/schemas/agreementlifecyclestatustypevalues'
+      description: 'A characteristic of agreement which refers to the LifecycleStatus of agreement (e.g., potential, offered, confirmed, completed, signed, terminated).'
+    agreement:
+      type: object
+      properties:
+        AgreementSignedDate:
+          $ref: '#/components/schemas/date'
+        AgreementType:
+          $ref: '#/components/schemas/agreementtypevalues'
+        AgreementValidityPeriod:
+          $ref: '#/components/schemas/datetimeperiod'
+        AgreementVersion:
+          $ref: '#/components/schemas/text'
+        AgreementStatus:
+          $ref: '#/components/schemas/agreementlifecyclestatus'
+        AgreementSubjectMatter:
+          $ref: '#/components/schemas/text'
+        AgreementIdentification:
+          $ref: '#/components/schemas/identifier'
+        AgreementDate:
+          $ref: '#/components/schemas/datetime'
+        AgreementDescription:
+          $ref: '#/components/schemas/text'
+      description: ''
+    productagreement:
+      type: object
+      properties:
+        Type:
+          $ref: '#/components/schemas/productagreementtypevalues'
+        ProductReference:
+          $ref: '#/components/schemas/bankingproduct'
+        AgreementReference:
+          $ref: '#/components/schemas/agreement'
+      description: "The product/service for which this is a financial transaction log ||\r\n|"
+    currencycode:
+      type: object
+      properties:
+        Currencycode:
+          type: string
+          description: "A code identifying a currency according to ISO-4217.\nA currency is a system of money in general use in a particular country.\n\nCode allocated to a currency, by a maintenance agency, under an international identification scheme as described in the latest edition of the international standard ISO 4217 \"Codes for the representation of currencies and funds\". Valid currency codes are registered with the ISO 4217 Maintenance Agency, and consist of three contiguous letters. (ISO20022)\n\n"
+          format: datatype
+      description: The currency for the logged  transactions CurrencyCode|CurrencyCode (https://www.iso20022.org/standardsrepository/type/CurrencyCode)|Standard|ISO20022 BM ()
+    interesttypevalues:
+      enum:
+        - Fixed
+        - Floatingratenote
+        - Dualbasis
+        - Index
+        - Discounted
+        - Zerocoupon
+        - Exinterest
+        - Cuminterest
+      type: string
+      description: ">\r\n* `Fixed` - Indicates that the type of interest is fixed.\r\n* `Floatingratenote` - Indicates that the type of interest is a floating rate note.\r\n* `Dualbasis` - Indicates that the type of interest is a dual basis.\r\n* `Index` - Indicates that the type of interest is index.\r\n* `Discounted` - Indicates that the type of interest is discounted.\r\n* `Zerocoupon` - Indicates that the type of interest is a zero coupon.\r\n* `Exinterest` - Indicates deal price excluding accrued interest.\r\n* `Cuminterest` - Indicates deal price including accrued interest.\r\n"
+    rate:
+      type: object
+      properties:
+        RateValue:
+          $ref: '#/components/schemas/value'
+        RateUnit:
+          $ref: '#/components/schemas/text'
+        RatePeriod:
+          $ref: '#/components/schemas/datetimeperiod'
+        RateCapitalUnit:
+          $ref: '#/components/schemas/text'
+      description: "An arranged InterestRate\n\n\n"
+    interestratetypevalues:
+      enum:
+        - Fixed
+        - Forfeit
+        - Variable
+        - Scheduled
+        - Unscheduled
+        - Discount
+        - Fixedrateunderlyingexposureforlife
+        - Fixedrateunderlyingexposurewithcompulsoryfutureswitchtofloating
+        - Fixedwithfutureperiodicresets
+        - Floatinglinkedtoindex
+        - Floatingrateunderlyingexposureforlife
+        - Floatingrateunderlyingexposurewithcap
+        - Floatingrateunderlyingexposurewithfloor
+        - Floatingrateunderlyingexposurewithfloorandcap
+        - Modular
+        - Obligorswapped
+        - Other
+        - Swicthoptionality
+      type: string
+      description: ">\r\n* `Fixed` - Rate is fixed.\r\n* `Forfeit` - No specific repurchase rate applies to the transaction Repo, only a forfeit.\r\n* `Variable` - Rate is variable.\r\n* `Scheduled` - Rate of the scheduled payment.\r\n* `Unscheduled` - Rate of the unscheduled payment.\r\n* `Discount` - Interest rate type is Discount.\r\n* `Fixedrateunderlyingexposureforlife` - Interest rate type is Fixed rate underlying exposure (for life).\r\n* `Fixedrateunderlyingexposurewithcompulsoryfutureswitchtofloating` - Interest rate type is Fixed rate underlying exposure with compulsory future switch to floating.\r\n* `Fixedwithfutureperiodicresets` - Interest rate type is Fixed with future periodic resets.\r\n* `Floatinglinkedtoindex` - Interest rate type is Floating rate underlying exposure linked to one index that will revert to another index in the future.\r\n* `Floatingrateunderlyingexposureforlife` - Interest rate type is Floating rate underlying exposure (for life).\r\n* `Floatingrateunderlyingexposurewithcap` - Interest rate type is Floating rate underlying exposure with cap.\r\n* `Floatingrateunderlyingexposurewithfloor` - Interest rate type is Floating rate underlying exposure with floor.\r\n* `Floatingrateunderlyingexposurewithfloorandcap` - Interest rate type is Floating rate underlying exposure with both floor and cap.\r\n* `Modular` - Interest rate type is Modular.\r\n* `Obligorswapped` - Interest rate type is Obligor Swapped.\r\n* `Other` - Any other type of interest rate that can be applied.\r\n* `Swicthoptionality` - Interest rate type is Switch Optionality.\r\n"
+    rateplantypevalues:
+      enum:
+        - StandardRatePlan
+        - AdjustmentRatePlan
+        - FinalRatePlan
+      type: string
+      description: ">\r\n* `StandardRatePlan` - \r\n* `AdjustmentRatePlan` - \r\n* `FinalRatePlan` - \r\n"
+    rateplan:
+      type: object
+      properties:
+        RatePlanName:
+          type: string
+          description: ''
+          format: string
+        RatePlanType:
+          $ref: '#/components/schemas/rateplantypevalues'
+        RatePlan:
+          type: string
+          description: ''
+          format: string
+      description: An arranged InterestRatePlan
+    schedule:
+      type: object
+      properties:
+        ScheduleType:
+          type: string
+          description: ''
+          format: string
+      description: "An interest schedule is an arranged/planned set of dates at which interest will be claimed.\n\n- The set can be represented on a calendar, a formula, a table, etc."
+    interestarrangement:
+      type: object
+      properties:
+        InterestType:
+          $ref: '#/components/schemas/interesttypevalues'
+        InterestRate:
+          $ref: '#/components/schemas/rate'
+        InterestDefinition:
+          $ref: '#/components/schemas/text'
+        InterestRateType:
+          $ref: '#/components/schemas/interestratetypevalues'
+        InterestPeriod:
+          $ref: '#/components/schemas/datetimeperiod'
+        InterestRatePlan:
+          $ref: '#/components/schemas/rateplan'
+        InterestSchedule:
+          $ref: '#/components/schemas/schedule'
+      description: The record of applied interest if interest calculations are supported Interest|Interest (https://www.iso20022.org/standardsrepository/type/Interest)|Standard|ISO20022 BM ()
+    amounttypevalues:
+      enum:
+        - Principal
+        - Actual
+        - Estimated
+        - Maximum
+        - Default
+        - Replacement
+        - Incremental
+        - Decremental
+        - Reserved
+        - Available
+        - Used
+      type: string
+      description: 'The type of block applied to the tracked position (e.g. pending, final) TypeOfAmountCode|TypeOfAmountCode (https://www.iso20022.org/standardsrepository/type/TypeOfAmountCode)|Standard|ISO20022 BM ()'
+    amount:
+      type: object
+      properties:
+        AmountValue:
+          $ref: '#/components/schemas/value'
+        AmountCurrency:
+          $ref: '#/components/schemas/currencycode'
+        DecimalPointPosition:
+          type: string
+          description: "Decimal point position starts calulating from the right\n"
+          format: string
+        AmountType:
+          $ref: '#/components/schemas/amounttypevalues'
+      description: The amount of the block CurrencyAndAmount|CurrencyAndAmount (https://www.iso20022.org/standardsrepository/type/CurrencyAndAmount)|Standard|ISO20022  ()
+    interesttransactiontypevalues:
+      enum:
+        - InterestAllocationTransaction
+        - InterestPaymentTransaction
+        - InterestAdjustmentTransaction
+      type: string
+      description: ">\r\n* `InterestAllocationTransaction` - \r\n* `InterestPaymentTransaction` - \r\n* `InterestAdjustmentTransaction` - \r\n"
+    debitcreditindicatortvalues:
+      enum:
+        - Debit
+        - Credit
+      type: string
+      description: ">\r\n* `Debit` - Transaction is a debt entry\r\n* `Credit` - Transaction is a credit entry\r\n"
+    interesttransaction:
+      type: object
+      properties:
+        InterestTransactionAmount:
+          $ref: '#/components/schemas/amount'
+        InterestTransactionDescription:
+          $ref: '#/components/schemas/text'
+        InterestTransactionType:
+          $ref: '#/components/schemas/interesttransactiontypevalues'
+        AppliedInterestRate:
+          $ref: '#/components/schemas/rate'
+        AppliedInteretType:
+          $ref: '#/components/schemas/interesttypevalues'
+        InterestCreditDebitIndicator:
+          $ref: '#/components/schemas/debitcreditindicatortvalues'
+      description: A record of applied interest Interest|Interest (https://www.iso20022.org/standardsrepository/type/Interest)|Standard|ISO20022 BM ()
+    ratetypevalues:
+      enum:
+        - Fixed
+        - Forfeit
+        - Variable
+        - Open
+        - Unknown
+        - Nilpayment
+        - Additionaltax
+        - Charges
+        - Cashinlieuofsecurities
+        - Gross
+        - Cashincentive
+        - Net
+        - Sollication
+        - Stampduty
+        - Stockexchangetax
+        - Withholdingtax
+        - Transfertax
+        - Transactiontax
+        - Taxdeferred
+        - Taxfeeamount
+        - Withholdingofforeigntax
+        - Withholdingoflocaltax
+        - Imputed
+        - Precompte
+        - Onetiertax
+        - Localtax
+        - Scheduled
+        - Unscheduled
+        - Anyandall
+      type: string
+      description: Applicable rate type RateTypeCode|RateTypeCode (https://www.iso20022.org/standardsrepository/type/RateTypeCode)|Standard|ISO20022 BM ()
+    limittypevalues:
+      enum:
+        - Multilateral
+        - Bilateral
+        - Netbilateral
+        - Indirectbilateral
+        - Global
+        - Mandatorybilateral
+        - Discretionarybilateral
+        - Directdebit
+        - Singlecustomerdirectdebit
+        - Singlefinancialinstitutiondirectdebit
+        - Totaldailycustomerdirectdebit
+        - Totaldailyfinancialinstitutiondirectdebit
+        - Autocollateralisation
+        - Unsecuredcredit
+        - Externalguarantee
+      type: string
+      description: The type of position maintained for the log (e.g. cumulative balance) LimitTypeCode|LimitTypeCode (https://www.iso20022.org/standardsrepository/type/LimitTypeCode)|Standard|ISO20022 BM ()
+    limitstatustypevalues:
+      enum:
+        - Enabled
+        - Disabled
+        - Deleted
+        - Requested
+      type: string
+      description: ">\r\n* `Enabled` - Limit is currently in effect.\r\n* `Disabled` - Limit is not currently in effect.\r\n* `Deleted` - Limit has been deleted or suspended.\r\n* `Requested` - Limit has been asked for and is not yet enabled.\r\n"
+    limitstatus:
+      type: object
+      properties:
+        LimitStatus:
+          $ref: '#/components/schemas/status'
+        LimitStatusType:
+          $ref: '#/components/schemas/limitstatustypevalues'
+      description: Current status of the limit.
+    frequencytypevalues:
+      enum:
+        - Annual
+        - Monthly
+        - Quarterly
+        - Semiannual
+        - Weekly
+        - Daily
+        - Adhoc
+        - Intraday
+        - Overnight
+        - Tendays
+        - Fortnightly
+        - Triggeredbymovement
+        - Never
+        - Rate
+        - Oncreditevent
+        - Upfront
+        - Onexpiry
+        - Hourly
+      type: string
+      description: ">\r\n* `Annual` - Event takes place every year or once a year.\r\n* `Monthly` - Event takes place every month or once a month.\r\n* `Quarterly` - Event takes place every three months or four times a year.\r\n* `Semiannual` - Event takes place every six months or two times a year.\r\n* `Weekly` - Event takes place once a week.\r\n* `Daily` - Event takes place every day.\r\n* `Adhoc` - Event takes place on request or as necessary.\r\n* `Intraday` - Event takes place several times a day.\r\n* `Overnight` - Event takes place overnight.\r\n* `Tendays` - Event takes place every ten business days.\r\n* `Fortnightly` - Event takes place every two weeks.\r\n* `Triggeredbymovement` - Event takes place at the end of the day if there was a movement on the account, otherwise nothing is sent that day.\r\n* `Never` - Event does never take place.\r\n* `Rate` - Event takes place based on a change of a rate.\r\n* `Oncreditevent` - Event occurs due to a credit event occurring for an issuer.\r\n* `Upfront` - Event that takes place at the initiation of a trade or agreement.\r\n* `Onexpiry` - Event occurs on expiry of a financial contract.\r\n* `Hourly` - Event takes place every hours.\r\n"
+    frequency:
+      type: object
+      properties:
+        FrequencyCode:
+          $ref: '#/components/schemas/frequencytypevalues'
+        FrequencyName:
+          $ref: '#/components/schemas/name'
+        FrequencyDefinition:
+          $ref: '#/components/schemas/text'
+      description: Specifies the periodicity linked to a limit for example the periodicity can indicate that the limit can be reached daily or monthly. (ISO20022)
+    limitarrangement:
+      type: object
+      properties:
+        LimitType:
+          $ref: '#/components/schemas/limittypevalues'
+        LimitCurrency:
+          $ref: '#/components/schemas/currencycode'
+        LimitValidityPeriod:
+          $ref: '#/components/schemas/datetimeperiod'
+        LimitAmount:
+          $ref: '#/components/schemas/amount'
+        LimitStatus:
+          $ref: '#/components/schemas/limitstatus'
+        LimitRate:
+          $ref: '#/components/schemas/rate'
+        LimitFrequency:
+          $ref: '#/components/schemas/frequency'
+        LimitIdentification:
+          $ref: '#/components/schemas/identifier'
+        LimitStartDatetime:
+          $ref: '#/components/schemas/datetime'
+        LimitCreditDebitIndicator:
+          $ref: '#/components/schemas/debitcreditindicatortvalues'
+        LimitAmountType:
+          $ref: '#/components/schemas/amounttypevalues'
+      description: 'The position definition, associated limit settings and rules Limit|Limit (https://www.iso20022.org/standardsrepository/type/Limit)|Standard|ISO20022 (https://www.iso20022.org/)'
+    priorityvaluetypes:
+      enum:
+        - Urgent
+        - High
+        - Normal
+        - Low
+      type: string
+      description: Priority classification for the block PriorityCode|PriorityCode (https://www.iso20022.org/standardsrepository/type/PriorityCode)|Standard|ISO20022 BM ()
+    datetimetypevalues:
+      enum:
+        - MaturityDate
+        - InitiatedDate
+        - RequestedDate
+        - ExecutedDate
+        - OpenDate
+        - CloseDate
+        - ExpiryDate
+        - EffectiveDate
+        - CreatingDate
+        - ActivationDate
+        - DeactivationDate
+      type: string
+      description: "The type of key dates associated with the block  (e.g. start, expiry) ||\r\n|"
+    FinancialPositionLog:
+      type: object
+      properties:
+        TransactionLogType:
+          $ref: '#/components/schemas/transactiontypevalues'
+        ProductInstanceReference:
+          $ref: '#/components/schemas/productagreement'
+        CustomerReference:
+          $ref: '#/components/schemas/involvedparty'
+        CounterpartyReference:
+          $ref: '#/components/schemas/involvedparty'
+        BaseCurrency:
+          $ref: '#/components/schemas/currencycode'
+        InterestApplicationRecord:
+          $ref: '#/components/schemas/interestarrangement'
+        InterestTransaction:
+          $ref: '#/components/schemas/interesttransaction'
+        TransactionDescription:
+          $ref: '#/components/schemas/text'
+        TransactionRateType:
+          $ref: '#/components/schemas/ratetypevalues'
+        TransactionInterestCharge:
+          $ref: '#/components/schemas/amount'
+        ManagedPositionLimits:
+          $ref: '#/components/schemas/limitarrangement'
+        PositionLimitType:
+          $ref: '#/components/schemas/limittypevalues'
+        PositionLimitSettings:
+          $ref: '#/components/schemas/limitarrangement'
+        PositionLimitValue:
+          $ref: '#/components/schemas/value'
+        AmountBlock:
+          $ref: '#/components/schemas/amount'
+        AmountBlockType:
+          $ref: '#/components/schemas/amounttypevalues'
+        Priority:
+          $ref: '#/components/schemas/priorityvaluetypes'
+        Amount:
+          $ref: '#/components/schemas/amount'
+        DateType:
+          $ref: '#/components/schemas/datetimetypevalues'
+        Date:
+          $ref: '#/components/schemas/datetime'
+        InitiationDate:
+          $ref: '#/components/schemas/date'
+        Status:
+          $ref: '#/components/schemas/status'
+      description: 'Maintain a log of transactions or activity, typically a financial account/journal or a log of activity to support behavioral analysis within Position Keeping. '
+  responses:
+    BadRequest:
+      description: BadRequest
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    NotFound:
+      description: NotFound
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    TooManyRequests:
+      description: TooManyRequests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    InternalServerError:
+      description: InternalServerError
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    FinancialPositionLog:
+      description: FinancialPositionLog
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FinancialPositionLog'
+    FinancialTransactionCapture:
+      description: FinancialTransactionCapture
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FinancialTransactionCapture'
+  parameters:
+    positionkeepingid:
+      name: positionkeepingid
+      in: path
+      required: true
+      style: simple
+      schema:
+        type: string
+    financialtransactioncaptureid:
+      name: financialtransactioncaptureid
+      in: path
+      required: true
+      style: simple
+      schema:
+        type: string
+  requestBodies:
+    FinancialPositionLog:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FinancialPositionLog'
+      required: true
+    FinancialTransactionCapture:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FinancialTransactionCapture'
+      required: true
